@@ -37,6 +37,7 @@ use gecko_bindings::structs::GeckoFontMetrics;
 use gecko_bindings::structs::Keyframe;
 use gecko_bindings::structs::ServoBundledURI;
 use gecko_bindings::structs::ServoElementSnapshot;
+use gecko_bindings::structs::ServoElementSnapshotTable;
 use gecko_bindings::structs::SheetParsingMode;
 use gecko_bindings::structs::StyleBasicShape;
 use gecko_bindings::structs::StyleBasicShapeType;
@@ -885,8 +886,9 @@ extern "C" {
      -> nsChangeHint;
 }
 extern "C" {
-    pub fn Gecko_CreateElementSnapshot(element: RawGeckoElementBorrowed)
-     -> ServoElementSnapshotOwned;
+    pub fn Gecko_GetElementSnapshot(table: *const ServoElementSnapshotTable,
+                                    element: RawGeckoElementBorrowed)
+     -> *const ServoElementSnapshot;
 }
 extern "C" {
     pub fn Gecko_DropElementSnapshot(snapshot: ServoElementSnapshotOwned);
@@ -2155,10 +2157,6 @@ extern "C" {
     pub fn Servo_Shutdown();
 }
 extern "C" {
-    pub fn Servo_Element_GetSnapshot(element: RawGeckoElementBorrowed)
-     -> *mut ServoElementSnapshot;
-}
-extern "C" {
     pub fn Servo_Element_GetStyleRuleList(element: RawGeckoElementBorrowed,
                                           rules:
                                               RawGeckoServoStyleRuleListBorrowedMut);
@@ -2186,12 +2184,15 @@ extern "C" {
 extern "C" {
     pub fn Servo_ResolveStyleLazily(element: RawGeckoElementBorrowed,
                                     pseudo_tag: *mut nsIAtom,
+                                    snapshots:
+                                        *const ServoElementSnapshotTable,
                                     set: RawServoStyleSetBorrowed)
      -> ServoComputedValuesStrong;
 }
 extern "C" {
     pub fn Servo_TraverseSubtree(root: RawGeckoElementBorrowed,
                                  set: RawServoStyleSetBorrowed,
+                                 snapshots: *const ServoElementSnapshotTable,
                                  root_behavior: TraversalRootBehavior,
                                  restyle_behavior: TraversalRestyleBehavior)
      -> bool;
@@ -2204,6 +2205,8 @@ extern "C" {
                                                               RawServoStyleSetBorrowed,
                                                           element:
                                                               RawGeckoElementBorrowed,
+                                                          snapshots:
+                                                              *const ServoElementSnapshotTable,
                                                           pseudo_tag:
                                                               *mut nsIAtom)
      -> ServoComputedValuesStrong;
